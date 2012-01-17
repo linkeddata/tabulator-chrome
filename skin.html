@@ -15,13 +15,16 @@ var qs = (function(a) {
     }
     return b;
 })(window.location.search.substr(1).split('&'));
-jQuery(document).ready(function() {
-    window.history.pushState({}, document.title, qs.uri);
-    window.document.title = uri;
-    var kb = tabulator.kb;
-    var subject = kb.sym(qs.uri);
-    tabulator.outline.GotoSubject(subject, true, undefined, true, undefined);
-});
+(function(uri){
+    jQuery(document).ready(function() {
+        window.document.title = uri;
+        var kb = tabulator.kb;
+        var subject = kb.sym(uri);
+        tabulator.outline.GotoSubject(subject, true, undefined, true, undefined);
+        if (window.history && window.history.pushState)
+            window.history.pushState({}, document.title, qs.uri);
+    });
+})(qs.uri);
 </script>
 </head>
 <body>
