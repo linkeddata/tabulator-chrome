@@ -1,15 +1,21 @@
 /* requests */
 
-function onBeforeSendHeaders(d) {
-    for (var i in d.requestHeaders) {
-        var header = d.requestHeaders[i];
-        if (header.name && header.name.toLowerCase() == 'accept') {
-            header.value += ',text/turtle,application/rdf+xml';
-            break;
+onBeforeSendHeaders = (function factory(value) {
+    return function(d) {
+        var done = false;
+        for (var i in d.requestHeaders) {
+            var header = d.requestHeaders[i];
+            if (header.name && header.name.toLowerCase() == 'accept') {
+                header.value = value + ',' + header.value;
+                done = true;
+                break;
+            }
         }
-    }
-    return {requestHeaders: d.requestHeaders};
-}
+        if (!done && d.requestHeaders.push)
+            d.requestHeaders.push({name: 'Accept', value: value});
+        return {requestHeaders: d.requestHeaders};
+    };
+})('text/turtle,text/n3,application/rdf+xml');
 
 /* responses */
 
