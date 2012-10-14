@@ -1,34 +1,48 @@
-/* requests */
+// background.js
 
-onBeforeSendHeaders = (function factory(value) {
+onBeforeSendHeaders = (function factory(types) {
     return function(d) {
-        var done = false;
+        var setup = false;
         for (var i in d.requestHeaders) {
-            var header = d.requestHeaders[i];
-            if (header.name && header.name.toLowerCase() == 'accept') {
-                header.value = value + ',' + header.value;
-                done = true;
+            var name = d.requestHeaders[i].name.toLowerCase();
+            if (name == 'accept') {
+                setup = true;
+                var values = d.requestHeaders[i].value.split(',');
+                for (var j in values)
+                    if (values[j].indexOf(';') < 0)
+                        values[j] = values[j] + ';q=0.9';
+                for (var j in types)
+                    values.unshift(types[j]);
+                d.requestHeaders[i].value = values.join(',');
                 break;
             }
         }
-        if (!done && d.requestHeaders.push)
-            d.requestHeaders.push({name: 'Accept', value: value});
+        if (!setup && d.requestHeaders.push) {
+            var values = [];
+            for (var j in types)
+                values.unshift(types[j]);
+            d.requestHeaders.push({name: 'Accept', value: values.join(',')});
+        }
         return {requestHeaders: d.requestHeaders};
     };
-})('text/turtle,text/n3,application/rdf+xml');
+})(['application/rdf+xml','text/n3','text/turtle']);
 
-/* responses */
+var requests = {};
 
-var _r = {};
-function init(d) { _r[d.requestId] = true; }
-function tracking(d) { return _r[d.requestId] == true; }
-function finish(d) {
-    if (tracking(d)) {
-        var next = chrome.extension.getURL('skin.html?uri='+encodeURIComponent(d.url));
-        delete _r[d.requestId];
-        chrome.tabs.update(d.tabId, { url: next });
-        return { cancel: true };
-    }
+function init(d) {
+    requests[d.requestId] = true;
+    return { cancel: true };
+}
+
+function skinnable(d) {
+    return requests[d.requestId] == true;
+}
+
+function skin(d) {
+    delete requests[d.requestId];
+    chrome.tabs.update(d.tabId, {
+        url: chrome.extension.getURL('skin.html?uri='+encodeURIComponent(d.url)),
+    });
 }
 
 function onHeadersReceived(d) {
@@ -36,24 +50,39 @@ function onHeadersReceived(d) {
         var header = d.responseHeaders[i];
         if (header.name && header.name.match(/content-type/i)
                         && header.value.match(/\/(n3|rdf|turtle)/))
-            init(d);
+            return init(d);
     }
-    return finish(d);
 }
 
-function onBeforeRedirect(d) {}
-
-function onCompleted(d) { return finish(d); }
-function onErrorOccurred(d) { return finish(d); }
+function onErrorOccurred(d) {
+    if (skinnable(d))
+        skin(d);
+}
 
 var events = {
-    'onBeforeSendHeaders': ['requestHeaders', 'blocking'],
-    'onHeadersReceived': ['responseHeaders', 'blocking']
-    //'onCompleted': ['responseHeaders']
+    'onBeforeSendHeaders': {
+        callback: onBeforeSendHeaders,
+        filter: {types: ["main_frame"], urls: ["<all_urls>"]},
+        extras: ['requestHeaders', 'blocking'],
+    },
+    'onHeadersReceived': {
+        callback: onHeadersReceived,
+        filter: {types: ["main_frame"], urls: ["<all_urls>"]},
+        extras: ['responseHeaders', 'blocking'],
+    },
+    'onErrorOccurred': {
+        callback: onErrorOccurred,
+        filter: {types: ["main_frame"], urls: ["<all_urls>"]},
+    },
 };
+
 (function setup(api) {
-    api.onErrorOccurred.addListener(onErrorOccurred, {types: ['main_frame']});
-    for (j in events)
-        if (api[j])
-            api[j].addListener(eval(j), {types: ["main_frame"]}, events[j]);
-})(chrome.webRequest || chrome.experimental.webRequest);
+    for (j in events) {
+        console.log('setup/addListener: ' + j);
+        if (events[j].extras && api[j])
+            api[j].addListener(events[j].callback, events[j].filter, events[j].extras);
+        else if (api[j])
+            api[j].addListener(events[j].callback, events[j].filter);
+    }
+    console.log('setup: success!');
+})(chrome.webRequest);
