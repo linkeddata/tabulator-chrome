@@ -1,8 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-</head>
-<body>
-<script type="text/javascript" src="popup.js"></script>
+  <head>
+    <title>Tabulator Popup</title>
+    <style>
+    body {
+      overflow: hidden;
+      margin: 0px;
+      padding: 0px;
+      background: white;
+    }
+
+    div:first-child {
+      margin-top: 0px;
+    }
+
+    div.button {
+      cursor: pointer;
+      text-align: center;
+      padding: 1px 3px;
+      font-family: sans-serif;
+      font-size: 0.8em;
+      width: 100px;
+      margin-top: 1px;
+      background: #cccccc;
+      border: 1px solid black;
+    }
+
+    div.button:hover {
+      background: #aaaaaa;
+    }
+
+    </style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="popup.js"></script>
+  </head>
+  <body>
+    <div id="disable" class="button" style="display: none">Disable</div>
+    <div id="enable" class="button" style="display: none">Enable</div>
+  </body>
 </body>
 </html>

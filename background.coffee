@@ -1,7 +1,10 @@
 # background.js
 
+enabled = !!1
+
 onBeforeSendHeaders = do (types=['application/rdf+xml','text/n3','text/turtle']) ->
     (d) ->
+        return if not enabled
         setup = false
         for elt in d.requestHeaders when elt.name.toLowerCase() is 'accept'
             setup = true
@@ -36,6 +39,7 @@ skin = (d) ->
     })
 
 onHeadersReceived = (d) ->
+    return if not enabled
     for header in d.responseHeaders
         if header.name.match(/content-type/i) and header.value.match(/\/(n3|rdf|turtle)/)
             return init d
@@ -118,4 +122,20 @@ class Server
             delete @clients[id]
 
 server = new Server
+
+toggleEnabled = ->
+    enabled = !enabled
+    if enabled
+        chrome.browserAction.setIcon
+            path: 'rdf_flyer.48-color.gif'
+    else
+        chrome.browserAction.setIcon
+            path: 'rdf_flyer.48-gray.gif'
+
+chrome.extension.onMessage.addListener (message, sender, respond) ->
+    if message.method in ['disable', 'enable']
+        do toggleEnabled
+    respond
+        enabled: enabled
+
 install()

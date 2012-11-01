@@ -14,11 +14,6 @@ connect()
 
 load = (uri) ->
     window.document.title = uri
-    chrome.tabs.getCurrent (tab) ->
-        chrome.pageAction.setPopup
-            popup: 'popup.html?uri='+encodeURIComponent(uri)
-            tabId: tab.id
-        chrome.pageAction.show tab.id
     kb = tabulator.kb
     subject = kb.sym(uri)
     tabulator.outline.GotoSubject(subject, true, undefined, true, undefined)
