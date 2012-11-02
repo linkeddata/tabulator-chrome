@@ -3,17 +3,23 @@
 port = null
 connect = ->
     port = chrome.extension.connect()
-    port.onMessage.addListener (data) ->
-        {method, url, statusLine, responseHeaders} = data
-        #console.log "#{method} <#{url}> #{statusLine}"
-        #for {name, value} in data.responseHeaders when name is 'Location'
-        #    console.log "#{name}: #{value}"
+    port.onMessage.addListener (d) ->
+        console.log "[#{d.eventName}] [#{d.statusCode}] <#{d.url}>"
+        if d.responseHeaders
+            for {name, value} in d.responseHeaders when name.toLowerCase() in ['content-location','link','location','updates-via']
+                console.log Array(d.eventName.length+3).join(' '), "[#{name}] #{value}"
     port.onDisconnect.addListener ->
         setTimeout(connect, 1000)
 connect()
 
+setup = (api) ->
+    api.sf.addCallback 'fail', (uri) ->
+        console.log '[onFetcherFail]', "<#{uri}>", arguments
+        true
+
 load = (uri) ->
     window.document.title = uri
+    setup tabulator
     kb = tabulator.kb
     subject = kb.sym(uri)
     tabulator.outline.GotoSubject(subject, true, undefined, true, undefined)

@@ -87,10 +87,15 @@ class Client
         for {api, handler} in @hooks
             api.removeListener handler
     onCompleted: (d) ->
+        d.eventName = 'onCompleted'
         @port.postMessage d
     onHeadersReceived: (d) ->
-        @port.postMessage d
+        d.eventName = 'onHeadersReceived'
+        d.statusCode = parseInt d.statusLine.split(' ')[1]
+        if d.statusCode in [301, 302, 303, 307]
+            @port.postMessage d
     onErrorOccurred: (d) ->
+        d.eventName = 'onErrorOccurred'
         @port.postMessage d
     @hooks: [
         api: chrome.webRequest.onCompleted
