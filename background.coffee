@@ -1,6 +1,6 @@
 # background.js
 
-enabled = !!1
+enabled = !1
 
 onBeforeSendHeaders = do (types=['application/rdf+xml','text/n3','text/turtle']) ->
     (d) ->
@@ -128,7 +128,7 @@ class Server
 
 server = new Server
 
-toggleEnabled = ->
+setEnabled = ->
     enabled = !enabled
     if enabled
         chrome.browserAction.setIcon
@@ -139,8 +139,9 @@ toggleEnabled = ->
 
 chrome.extension.onMessage.addListener (message, sender, respond) ->
     if message.method in ['disable', 'enable']
-        do toggleEnabled
+        do setEnabled
     respond
         enabled: enabled
 
+do setEnabled
 install()
