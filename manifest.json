@@ -1,25 +1,25 @@
 {
-    "background": { "scripts": ["background.js"] },
+    "background": { "scripts": ["background.js", "ga.js"] },
     "content_security_policy": "script-src 'self' https://; object-src 'self'",
     "description": "Linked Data Browser",
     "icons": {
-        "48": "rdf_flyer.48-color.gif"
+        "128": "rdf_flyer.128-color.png",
+        "48": "rdf_flyer.48-color.png"
     },
     "manifest_version": 2,
     "name": "Tabulator",
     "browser_action": {
-        "default_icon": "rdf_flyer.48-color.gif",
+        "default_icon": "rdf_flyer.128-color.png",
         "default_popup": "popup.html",
         "default_title": "Linked Data Browser"
     },
     "permissions": [
-        "file:///*",
         "http://*/*",
         "https://*/*",
         "unlimitedStorage",
         "webRequest",
         "webRequestBlocking"
     ],
-    "version": "0.0",
+    "version": "0.0.0.0",
     "web_accessible_resources": ["skin.html"]
 }

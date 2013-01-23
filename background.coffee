@@ -131,11 +131,11 @@ server = new Server
 setEnabled = ->
     enabled = !enabled
     if enabled
-        chrome.browserAction.setIcon
-            path: 'rdf_flyer.48-color.gif'
+        chrome.browserAction.setBadgeText
+            text: ''
     else
-        chrome.browserAction.setIcon
-            path: 'rdf_flyer.48-gray.gif'
+        chrome.browserAction.setBadgeText
+            text: 'OFF'
 
 chrome.extension.onMessage.addListener (message, sender, respond) ->
     if message.method in ['disable', 'enable']
