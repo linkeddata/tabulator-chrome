@@ -1,6 +1,6 @@
 {
     "background": { "scripts": ["background.js", "ga.js"] },
-    "content_security_policy": "script-src 'self' https://; object-src 'self'",
+    "content_security_policy": "script-src 'self' https://ajax.googleapis.com https://linkeddata.github.io https://linkeddata.github.com https://tabulator.org https://w3.scripts.mit.edu https://databox.me https://data.fm https://rww.io https://webizen https://api.webizen.com; object-src 'self'",
     "description": "Linked Data Browser",
     "icons": {
         "128": "rdf_flyer.128-color.png",
@@ -20,6 +20,6 @@
         "webRequest",
         "webRequestBlocking"
     ],
-    "version": "0.0.0.0",
+    "version": "0.0.0.2",
     "web_accessible_resources": ["skin.html"]
 }
